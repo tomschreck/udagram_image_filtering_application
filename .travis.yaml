@@ -1,0 +1,20 @@
+language: minimal
+
+services:
+  - docker
+
+before_script:
+  - chmod +x ./set_env.sh
+  - ./set_env.sh
+  - cp .env udagram-api-feed/
+  - cp .env udagram-api-users/
+
+script:
+  - docker-compose -f deploy/docker/docker-compose-build.yaml build --parallel  
+
+after_success:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker push tomschreck/udagram-reverseproxy
+  - docker push tomschreck/udagram-restapi-feed
+  - docker push tomschreck/udagram-restapi-user  
+  - docker push tomschreck/udagram-frontend
